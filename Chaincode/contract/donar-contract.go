@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/hyperledger/fabric-chaincode-go/shim"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 )
 
@@ -65,25 +66,25 @@ func (d *DonarContract) CreateDonar(ctx contractapi.TransactionContextInterface,
 
 		name, exists := transientData["name"]
 		if !exists {
-			return "", fmt.Errorf("the make was not specified in transient data. Please try again")
+			return "", fmt.Errorf("the name was not specified in transient data. Please try again")
 		}
 		donar.Name = string(name)
 
 		charityID, exists := transientData["charityID"]
 		if !exists {
-			return "", fmt.Errorf("the model was not specified in transient data. Please try again")
+			return "", fmt.Errorf("the charityid was not specified in transient data. Please try again")
 		}
 		donar.CharityID = string(charityID)
 
 		amount, exists := transientData["amount"]
 		if !exists {
-			return "", fmt.Errorf("the color was not specified in transient data. Please try again")
+			return "", fmt.Errorf("the amount was not specified in transient data. Please try again")
 		}
 		donar.Amount = string(amount)
 
 		txnsID, exists := transientData["txnsID"]
 		if !exists {
-			return "", fmt.Errorf("the dealer was not specified in transient data. Please try again")
+			return "", fmt.Errorf("the txnsID was not specified in transient data. Please try again")
 		}
 		donar.TransactionID = string(txnsID)
 
@@ -147,4 +148,46 @@ func (d *DonarContract) DeleteDonar(ctx contractapi.TransactionContextInterface,
 	} else {
 		return fmt.Errorf("organisation with %v cannot delete the donar", clientOrgID)
 	}
+}
+
+func (d *DonarContract) GetAllDonars(ctx contractapi.TransactionContextInterface) ([]*Donar, error) {
+	queryString := `{"selector":{"assetType":"Donar"}}`
+	resultsIterator, err := ctx.GetStub().GetPrivateDataQueryResult(collectionName, queryString)
+	if err != nil {
+		return nil, fmt.Errorf("could not fetch the query result. %s", err)
+	}
+	defer resultsIterator.Close()
+	return DonarResultIteratorFunction(resultsIterator)
+}
+
+func (d *DonarContract) GetOrdersByRange(ctx contractapi.TransactionContextInterface, startKey string, endKey string) ([]*Donar, error) {
+	resultsIterator, err := ctx.GetStub().GetPrivateDataByRange(collectionName, startKey, endKey)
+
+	if err != nil {
+		return nil, fmt.Errorf("could not fetch the private data by range. %s", err)
+	}
+	defer resultsIterator.Close()
+
+	return DonarResultIteratorFunction(resultsIterator)
+
+}
+
+// iterator function
+
+func DonarResultIteratorFunction(resultsIterator shim.StateQueryIteratorInterface) ([]*Donar, error) {
+	var donars []*Donar
+	for resultsIterator.HasNext() {
+		queryResult, err := resultsIterator.Next()
+		if err != nil {
+			return nil, fmt.Errorf("could not fetch the details of result iterator. %s", err)
+		}
+		var donar Donar
+		err = json.Unmarshal(queryResult.Value, &donar)
+		if err != nil {
+			return nil, fmt.Errorf("could not unmarshal the data. %s", err)
+		}
+		donars = append(donars, &donar)
+	}
+
+	return donars, nil
 }
