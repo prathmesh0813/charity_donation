@@ -1,42 +1,51 @@
 package main
 
-// Config represents the configuration for a role.
-type Config struct {
-	CertPath     string `json:"certPath"`
-	KeyDirectory string `json:"keyPath"`
-	TLSCertPath  string `json:"tlsCertPath"`
-	PeerEndpoint string `json:"peerEndpoint"`
-	GatewayPeer  string `json:"gatewayPeer"`
-	MSPID        string `json:"mspID"`
-}
+import "fmt"
 
-// Create a Profile map
-var profile = map[string]Config{
+func main(){
+	// result := submitTxnFn(
+	// 	"charityorg",
+	// 	"charitychannel",
+	// 	"charity",
+	// 	"CharityContract",
+	// 	"invoke",
+	// 	make(map[string][]byte),
+	// 	"CreateCharity",
+	// 	"C69",
+	// 	"100000",
+	// 	"Orphan",
+	// )
 
-	"charityorg": {
-		CertPath:     "../Charity-network/organizations/peerOrganizations/charityorg.charity.com/users/User1@charityorg.charity.com/msp/signcerts/cert.pem",
-		KeyDirectory: "../Charity-network/organizations/peerOrganizations/charityorg.charity.com/users/User1@charityorg.charity.com/msp/keystore/",
-		TLSCertPath:  "../Charity-network/organizations/peerOrganizations/charityorg.charity.com/peers/peer0.charityorg.charity.com/tls/ca.crt",
-		PeerEndpoint: "localhost:7051",
-		GatewayPeer:  "peer0.charityorg.charity.com",
-		MSPID:        "CharityorgMSP",
-	},
+	// privateData := map[string][]byte{
+	// 	"name":       []byte("Ram"),
+	// 	"charityID":      []byte("c03"),
+	// 	"amount":      []byte("100"),
+	// 	"txnsID": []byte("CCC"),
+	// }
 
-	"donar": {
-		CertPath:     "../Charity-network/organizations/peerOrganizations/donar.charity.com/users/User1@donar.charity.com/msp/signcerts/cert.pem",
-		KeyDirectory: "../Charity-network/organizations/peerOrganizations/donar.charity.com/users/User1@donar.charity.com/msp/keystore/",
-		TLSCertPath:  "../Charity-network/organizations/peerOrganizations/donar.charity.com/peers/peer0.donar.charity.com/tls/ca.crt",
-		PeerEndpoint: "localhost:9051",
-		GatewayPeer:  "peer0.donar.charity.com",
-		MSPID:        "DonarMSP",
-	},
+	//result := submitTxnFn("donar", "charitychannel", "charity", "DonarContract", "private", privateData, "CreateDonar", "D01")
 
-	"auditor": {
-		CertPath:     "../Charity-network/organizations/peerOrganizations/auditor.charity.com/users/User1@auditor.charity.com/msp/signcerts/cert.pem",
-		KeyDirectory: "../Charity-network/organizations/peerOrganizations/auditor.charity.com/users/User1@auditor.charity.com/msp/keystore/",
-		TLSCertPath:  "../Charity-network/organizations/peerOrganizations/auditor.charity.com/peers/peer0.auditor.charity.com/tls/ca.crt",
-		PeerEndpoint: "localhost:11051",
-		GatewayPeer:  "peer0.auditor.charity.com",
-		MSPID:        "AuditorMSP",
-	},
+	//result := submitTxnFn("donar", "charitychannel", "charity", "DonarContract", "query", make(map[string][]byte), "ReadDonar", "D01")
+
+	//result := submitTxnFn("charityorg", "charitychannel", "charity", "CharityContract", "query", make(map[string][]byte), "GetAllCharities")
+
+	// result := submitTxnFn("manufacturer", "autochannel", "KBA-Automobile", "OrderContract", "query", make(map[string][]byte), "GetAllOrders")
+
+	// result := submitTxnFn("manufacturer", "autochannel", "KBA-Automobile", "CarContract", "query", make(map[string][]byte), "GetMatchingOrders", "Car-06")
+
+	// result := submitTxnFn("manufacturer", "autochannel", "KBA-Automobile", "CarContract", "invoke", make(map[string][]byte), "MatchOrder", "Car-06", "ORD-03")
+
+	// result := submitTxnFn("mvd", "autochannel", "KBA-Automobile", "CarContract", "invoke", make(map[string][]byte), "RegisterCar", "Car-06", "Dani", "KL-01-CD-01")
+
+
+
+
+	 	
+	result := submitTxnFn("manufacturer", "autochannel", "KBA-Automobile", "CarContract", "query", make(map[string][]byte), "ReadCar", "Car-06")
+
+
+
+
+	fmt.Println(result)
+
 }

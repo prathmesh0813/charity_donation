@@ -34,6 +34,11 @@ type PaginatedQueryResult struct {
 	Bookmark            string     `json:"bookmark"`
 }
 
+type EventData struct {
+	Type  string
+	CharityId string
+}
+
 func (c *CharityContract) CarExists(ctx contractapi.TransactionContextInterface, charityID string) (bool, error) {
 	data, err := ctx.GetStub().GetState(charityID)
 
@@ -67,13 +72,21 @@ func (c *CharityContract) CreateCharity(ctx contractapi.TransactionContextInterf
 			Cause:     cause,
 		}
 
+		fmt.Println("Create charity data ======= ", charity)
 		bytes, _ := json.Marshal(charity)
 
 		err = ctx.GetStub().PutState(charityID, bytes)
 		if err != nil {
-			return "", err
+			return "", fmt.Errorf("could not create charity. %s", err)
 		} else {
-			return fmt.Sprintf("successfully added car %v", charityID), nil
+			addCharityEventData := EventData{
+				Type:      "Charity creation",
+				CharityId: charityID,
+			}
+			eventDataByte, _ := json.Marshal(addCharityEventData)
+			ctx.GetStub().SetEvent("CreateCharity", eventDataByte)
+
+			return fmt.Sprintf("successfully added charity %v", charityID), nil
 		}
 
 	} else {
