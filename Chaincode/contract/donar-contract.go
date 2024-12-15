@@ -21,6 +21,7 @@ type Donar struct {
 	CharityID     string `json:"charityID"`
 	Amount        string `json:"amount"`
 	TransactionID string `json:"transactionID"`
+	Status        string `json:"status"`
 }
 
 const collectionName string = "DonarCollection"
@@ -89,6 +90,7 @@ func (d *DonarContract) CreateDonar(ctx contractapi.TransactionContextInterface,
 		donar.TransactionID = string(txnsID)
 
 		donar.AssetType = "Donar"
+		donar.Status = "Pending"
 		donar.DonarID = donarID
 
 		bytes, _ := json.Marshal(donar)
@@ -160,7 +162,7 @@ func (d *DonarContract) GetAllDonars(ctx contractapi.TransactionContextInterface
 	return DonarResultIteratorFunction(resultsIterator)
 }
 
-func (d *DonarContract) GetOrdersByRange(ctx contractapi.TransactionContextInterface, startKey string, endKey string) ([]*Donar, error) {
+func (d *DonarContract) GetDonarsByRange(ctx contractapi.TransactionContextInterface, startKey string, endKey string) ([]*Donar, error) {
 	resultsIterator, err := ctx.GetStub().GetPrivateDataByRange(collectionName, startKey, endKey)
 
 	if err != nil {

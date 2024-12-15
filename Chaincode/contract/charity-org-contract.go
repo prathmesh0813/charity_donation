@@ -14,6 +14,13 @@ type CharityContract struct {
 	contractapi.Contract
 }
 
+type HistoryResult struct {
+	Record    *Donar `json:"record"`
+	TxId      string `json:"txId"`
+	Timestamp string `json:"timestamp"`
+	IsDelete  bool   `json:"isDelete"`
+}
+
 type Charity struct {
 	AssetType string `json:"assetType"`
 	CharityId string `json:"charityID"`
@@ -35,7 +42,7 @@ type PaginatedQueryResult struct {
 }
 
 type EventData struct {
-	Type  string
+	Type      string
 	CharityId string
 }
 
@@ -246,4 +253,125 @@ func (c *CharityContract) GetCharityWithPagination(ctx contractapi.TransactionCo
 		FetchedRecordsCount: responseMetadata.FetchedRecordsCount,
 		Bookmark:            responseMetadata.Bookmark,
 	}, nil
+}
+
+// func (c *CharityContract) ApproveDonar(ctx contractapi.TransactionContextInterface, donarID string) (string, error) {
+// 	clientOrgID, err := ctx.GetClientIdentity().GetMSPID()
+// 	if err != nil {
+// 		return "", fmt.Errorf("could not fetch client identity. %s", err)
+// 	}
+
+// 	if clientOrgID != "CharityorgMSP" {
+// 		return "", fmt.Errorf("organization with MSPID %v is not authorized to approve donors", clientOrgID)
+// 	}
+
+// 	bytes, err := ctx.GetStub().GetPrivateData(collectionName, donarID)
+// 	if err != nil {
+// 		return "", fmt.Errorf("could not fetch private data for donarID %s. %s", donarID, err)
+// 	}
+// 	if bytes == nil {
+// 		return "", fmt.Errorf("donar with ID %s does not exist", donarID)
+// 	}
+
+// 	var donar Donar
+// 	err = json.Unmarshal(bytes, &donar)
+// 	if err != nil {
+// 		return "", fmt.Errorf("could not unmarshal private data to type Donar. %s", err)
+// 	}
+
+// 	if donar.Status == "approved" {
+// 		return "", fmt.Errorf("donar with ID %s is already approved", donarID)
+// 	}
+
+// 	donar.Status = "approved" // Update status to approved
+
+// 	updatedBytes, _ := json.Marshal(donar)
+// 	err = ctx.GetStub().PutPrivateData(collectionName, donarID, updatedBytes)
+// 	if err != nil {
+// 		return "", fmt.Errorf("could not update the donor status. %s", err)
+// 	}
+
+// 	return fmt.Sprintf("donar with ID %v has been approved", donarID), nil
+// }
+
+func (c *CharityContract) MatchOrder(ctx contractapi.TransactionContextInterface, charityID string, donarID string) (string, error) {
+
+	bytes, err := ctx.GetStub().GetPrivateData(collectionName, donarID)
+	if err != nil {
+		return "", fmt.Errorf("could not get the private data: %s", err)
+	}
+
+	var donar Donar
+
+	err = json.Unmarshal(bytes, &donar)
+
+	if err != nil {
+		return "", fmt.Errorf("could not unmarshal the data. %s", err)
+	}
+
+	charity, err := c.ReadCharity(ctx, charityID)
+	if err != nil {
+		return "", fmt.Errorf("could not read the data. %s", err)
+	}
+
+	if charity.CharityId == donar.CharityID {
+		donar.Status = "Approved"
+
+		bytes, _ := json.Marshal(charity)
+
+		ctx.GetStub().DelPrivateData(collectionName, donarID)
+
+		err = ctx.GetStub().PutState(charityID, bytes)
+
+		if err != nil {
+			return "", fmt.Errorf("could not add the data %s", err)
+		} else {
+			return fmt.Sprintf("Deleted donar %v and paid to charity %v ", donar.DonarID, charity.CharityId), nil
+		}
+	} else {
+		return "", fmt.Errorf("order is not matching")
+	}
+}
+
+func (c *CharityContract) GetDonarHistory(ctx contractapi.TransactionContextInterface, donarId string) ([]*HistoryResult, error) {
+
+	resultsIterator, err := ctx.GetStub().GetHistoryForKey(donarId)
+	if err != nil {
+		return nil, fmt.Errorf("could not get the data. %s", err)
+	}
+	defer resultsIterator.Close()
+
+	var records []*HistoryResult
+	for resultsIterator.HasNext() {
+		response, err := resultsIterator.Next()
+		if err != nil {
+			return nil, fmt.Errorf("could not get the value of resultsIterator. %s", err)
+		}
+
+		var donar Donar
+		if len(response.Value) > 0 {
+			err = json.Unmarshal(response.Value, &donar)
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			donar = Donar{
+				DonarID: donarId,
+			}
+		}
+
+		timestamp := response.Timestamp.AsTime()
+
+		formattedTime := timestamp.Format(time.RFC1123)
+
+		record := HistoryResult{
+			TxId:      response.TxId,
+			Timestamp: formattedTime,
+			Record:    &donar,
+			IsDelete:  response.IsDelete,
+		}
+		records = append(records, &record)
+	}
+
+	return records, nil
 }

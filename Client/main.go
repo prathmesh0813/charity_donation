@@ -16,14 +16,14 @@ func main(){
 	// 	"Orphan",
 	// )
 
-	// privateData := map[string][]byte{
-	// 	"name":       []byte("Ram"),
-	// 	"charityID":      []byte("c03"),
-	// 	"amount":      []byte("100"),
-	// 	"txnsID": []byte("CCC"),
-	// }
+	privateData := map[string][]byte{
+		"name":       []byte("Ram"),
+		"charityID":      []byte("c03"),
+		"amount":      []byte("100"),
+		"txnsID": []byte("CCC"),
+	}
 
-	//result := submitTxnFn("donar", "charitychannel", "charity", "DonarContract", "private", privateData, "CreateDonar", "D01")
+	result := submitTxnFn("donar", "charitychannel", "charity", "DonarContract", "private", privateData, "CreateDonar", "D01")
 
 	//result := submitTxnFn("donar", "charitychannel", "charity", "DonarContract", "query", make(map[string][]byte), "ReadDonar", "D01")
 
@@ -41,7 +41,7 @@ func main(){
 
 
 	 	
-	result := submitTxnFn("manufacturer", "autochannel", "KBA-Automobile", "CarContract", "query", make(map[string][]byte), "ReadCar", "Car-06")
+	//result := submitTxnFn("manufacturer", "autochannel", "KBA-Automobile", "CarContract", "query", make(map[string][]byte), "ReadCar", "Car-06")
 
 
 
