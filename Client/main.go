@@ -21,6 +21,7 @@ func main(){
 		"charityID":      []byte("c03"),
 		"amount":      []byte("100"),
 		"txnsID": []byte("CCC"),
+		"status":[]byte("pending"),
 	}
 
 	result := submitTxnFn("donar", "charitychannel", "charity", "DonarContract", "private", privateData, "CreateDonar", "D01")

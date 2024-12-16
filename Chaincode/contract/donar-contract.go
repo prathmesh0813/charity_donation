@@ -89,8 +89,14 @@ func (d *DonarContract) CreateDonar(ctx contractapi.TransactionContextInterface,
 		}
 		donar.TransactionID = string(txnsID)
 
+		status, exists := transientData["status"]
+		if !exists {
+			return "", fmt.Errorf("the status was not specified in transient data. Please try again")
+		}
+		donar.Status = string(status)
+
 		donar.AssetType = "Donar"
-		donar.Status = "Pending"
+		//donar.Status = "Pending"
 		donar.DonarID = donarID
 
 		bytes, _ := json.Marshal(donar)
