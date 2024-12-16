@@ -41,6 +41,7 @@ func (d *DonarContract) DonarExists(ctx contractapi.TransactionContextInterface,
 // CreateOrder creates a new instance of Order
 func (d *DonarContract) CreateDonar(ctx contractapi.TransactionContextInterface, donarID string) (string, error) {
 
+	fmt.Println("--------------INSIDE CREATE--------------------")
 	clientOrgID, err := ctx.GetClientIdentity().GetMSPID()
 	if err != nil {
 		return "", fmt.Errorf("could not fetch client identity. %s", err)
@@ -112,6 +113,8 @@ func (d *DonarContract) CreateDonar(ctx contractapi.TransactionContextInterface,
 
 // ReadOrder retrieves an instance of Order from the private data collection
 func (d *DonarContract) ReadDonar(ctx contractapi.TransactionContextInterface, orderID string) (*Donar, error) {
+
+	fmt.Println("--------------INSIDE Read--------------------")
 	exists, err := d.DonarExists(ctx, orderID)
 	if err != nil {
 		return nil, fmt.Errorf("could not read from world state. %s", err)

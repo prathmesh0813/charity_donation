@@ -46,7 +46,7 @@ func submitTxnFn(organization string, channelName string, chaincodeName string, 
 		result, err := contract.SubmitTransaction(txnName, args...)
 
 		if err != nil {
-			panic(fmt.Errorf("failed to submit transaction: %w", err))
+			fmt.Errorf("failed to submit transaction: %w", err)
 		}
 
 		return fmt.Sprintf("*** Transaction submitted successfully: %s\n", result)
@@ -54,7 +54,7 @@ func submitTxnFn(organization string, channelName string, chaincodeName string, 
 	case "query":
 		evaluateResult, err := contract.EvaluateTransaction(txnName, args...)
 		if err != nil {
-			panic(fmt.Errorf("failed to evaluate transaction: %w", err))
+			fmt.Errorf("failed to evaluate transaction: %w", err)
 		}
 
 		var result string
@@ -75,7 +75,7 @@ func submitTxnFn(organization string, channelName string, chaincodeName string, 
 		)
 
 		if err != nil {
-			panic(fmt.Errorf("failed to submit transaction: %w", err))
+			fmt.Errorf("failed to submit transaction: %w", err)
 		}
 
 		return fmt.Sprintf("*** Transaction committed successfully\n result: %s \n", result)

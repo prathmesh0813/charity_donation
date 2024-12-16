@@ -41,23 +41,12 @@ type DonarData struct {
 	Status        string `json:"status"`
 }
 
-type Match struct {
-	OrderId string `json:"orderId"`
-	CarId   string `json:"carId"`
-}
-
-type DonarHistory struct {
-	Record    *DonarData `json:"record"`
-	TxId      string     `json:"txId"`
-	Timestamp string     `json:"timestamp"`
-	IsDelete  bool       `json:"isDelete"`
-}
-
-type Register struct {
-	CarId     string `json:"carId"`
-	CarOwner  string `json:"carOwner"`
-	RegNumber string `json:"regNumber"`
-}
+// type DonarHistory struct {
+// 	Record    *DonarData `json:"record"`
+// 	TxId      string     `json:"txId"`
+// 	Timestamp string     `json:"timestamp"`
+// 	IsDelete  bool       `json:"isDelete"`
+// }
 
 func main() {
 	router := gin.Default()
@@ -121,7 +110,16 @@ func main() {
 		ctx.JSON(http.StatusOK, gin.H{"data": result})
 	})
 
-	//Get all orders
+	router.GET("/api/donar/:id", func(ctx *gin.Context) {
+		donarID := ctx.Param("id")
+
+		//fmt.Println(donarID)
+		result := submitTxnFn("donar", "charitychannel", "charity", "DonarContract", "query", make(map[string][]byte), "ReadDonar", donarID)
+
+		ctx.JSON(http.StatusOK, gin.H{"data": result})
+	})
+
+	// Get all donars
 	router.GET("/api/donar/all", func(ctx *gin.Context) {
 
 		result := submitTxnFn("donar", "charitychannel", "charity", "DonarContract", "query", make(map[string][]byte), "GetAllDonars")
@@ -149,7 +147,6 @@ func main() {
 		fmt.Printf("donar  %s", req)
 
 		privateData := map[string][]byte{
-			"donarID":       []byte(req.DonarID),
 			"name":          []byte(req.Name),
 			"charityId":     []byte(req.CharityID),
 			"amount":        []byte(req.Amount),
@@ -160,14 +157,6 @@ func main() {
 		submitTxnFn("donar", "charitychannel", "charity", "DonarContract", "private", privateData, "CreateDonar", req.DonarID)
 
 		ctx.JSON(http.StatusOK, req)
-	})
-
-	router.GET("/api/donar/:id", func(ctx *gin.Context) {
-		donarId := ctx.Param("id")
-
-		result := submitTxnFn("donar", "charitychannel", "charity", "DonarContract", "query", make(map[string][]byte), "ReadDonar", donarId)
-
-		ctx.JSON(http.StatusOK, gin.H{"data": result})
 	})
 
 	// 	router.GET("/mvd", func(ctx *gin.Context) {
@@ -188,24 +177,24 @@ func main() {
 	// 		})
 	// 	})
 
-	router.GET("/api/donar/history", func(ctx *gin.Context) {
-		donarID := ctx.Query("donarID")
-		result := submitTxnFn("charityorg", "charitychannel", "charity", "CharityContract", "query", make(map[string][]byte), "GetDonarHistory", donarID)
+	// router.GET("/api/donar/history", func(ctx *gin.Context) {
+	// 	donarID := ctx.Query("donarID")
+	// 	result := submitTxnFn("charityorg", "charitychannel", "charity", "CharityContract", "query", make(map[string][]byte), "GetDonarHistory", donarID)
 
-		// fmt.Printf("result %s", result)
+	// 	// fmt.Printf("result %s", result)
 
-		var donars []DonarHistory
+	// 	var donars []DonarHistory
 
-		if len(result) > 0 {
-			// Unmarshal the JSON array string into the orders slice
-			if err := json.Unmarshal([]byte(result), &donars); err != nil {
-				fmt.Println("Error:", err)
-				return
-			}
-		}
+	// 	if len(result) > 0 {
+	// 		// Unmarshal the JSON array string into the orders slice
+	// 		if err := json.Unmarshal([]byte(result), &donars); err != nil {
+	// 			fmt.Println("Error:", err)
+	// 			return
+	// 		}
+	// 	}
 
-		ctx.JSON(http.StatusOK, donars)
-	})
+	// 	ctx.JSON(http.StatusOK, donars)
+	// })
 
-	router.Run("localhost:8081")
+	router.Run("localhost:8088")
 }
